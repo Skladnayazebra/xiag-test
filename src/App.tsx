@@ -1,8 +1,11 @@
 import React from 'react';
+import { Layout } from "./components/Layout/Layout";
 
 function App() {
     return (
-        <div>APP</div>
+        <Layout>
+            <div>APP</div>
+        </Layout>
     )
 }
 
