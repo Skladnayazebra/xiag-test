@@ -61,7 +61,7 @@ export const PollCreatorPage = () => {
                         name="question"
                         placeholder="question"
                         ref={register({
-                            required: 'field can`t be empty'
+                            required: 'can`t be empty'
                         })}
                     />
                     {errors?.question &&
@@ -72,14 +72,20 @@ export const PollCreatorPage = () => {
                     {fields.map((field, index) => (
                         <div className={s.option} key={field.key}>
                             <input
+                                type="text"
                                 name={`options[${index}].value`}
                                 ref={register({
-                                    required: 'field can`t be empty'
+                                    required: 'can`t be empty'
                                 })}
                                 defaultValue={field.value}
                                 placeholder={`option ${index + 1}`}
                             />
-                            <input ref={register()} type="hidden" name={`options[${index}].id`} defaultValue={index + 1}/>
+                            <input
+                                type="hidden"
+                                name={`options[${index}].id`}
+                                ref={register({ valueAsNumber: true })}
+                                defaultValue={index + 1}
+                            />
                             {errors?.options?.[index]?.value &&
                                 <span>{errors?.options?.[index]?.value?.message}</span>
                             }

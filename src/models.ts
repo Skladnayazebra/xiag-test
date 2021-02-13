@@ -1,4 +1,4 @@
-export type TPoll = {
+export interface TPoll {
     question: string,
     options: { value: string, id: number }[],
 }

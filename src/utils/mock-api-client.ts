@@ -1,4 +1,5 @@
 import { API_DELAY, LOCALSTORAGE_KEY } from "../app-config";
+import { TPoll } from "../models";
 
 // this api client can be extended to class or function,
 // maybe we wanted to add some parameters in future, like localstorageKey
@@ -21,11 +22,12 @@ export const mockApiClient = {
         })
     },
     GET: function () {
-        return new Promise(function(resolve, reject) {
+        // todo: this is not universal solution!
+        return new Promise<TPoll>(function(resolve, reject) {
             try {
                 const encodedData = localStorage.getItem(LOCALSTORAGE_KEY)
                 if (encodedData) {
-                    const data = JSON.parse(encodedData)
+                    const data: TPoll = JSON.parse(encodedData)
                     resolve(data);
                 } else {
                     reject()
