@@ -1,42 +1,87 @@
-import cn from 'classnames'
-import { useHistory } from 'react-router-dom'
 import s from './PollCreatorPage.module.scss'
-import { useForm } from 'react-hook-form'
-import { useEffect, useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { useRef } from 'react'
 
 
 type FormData = {
-    name: string,
+    question: string,
+    options: { value: string }[],
 }
 
-const SUBMIT_TIMEOUT = 500;
+const setTimeout = window.setTimeout;
+
+const SUBMIT_DELAY = 500;
+const MIN_OPTIONS = 2;
 
 export const PollCreatorPage = () => {
-    const { register, handleSubmit } = useForm<FormData>()
-    const [savedPoll, setSavedPoll]= useState({ name: ''})
-
     const submitTimeout = useRef<number>()
     const history = useHistory()
 
-    useEffect(() => {
-        const pollString = localStorage.getItem('poll')
-        const poll = pollString ? JSON.parse(pollString) : { name: ''}
-        setSavedPoll(poll)
-    }, [])
+    const { register, control, handleSubmit, errors } = useForm<FormData>({
+        defaultValues: {
+            question: '',
+            options: [
+                {
+                    value: '',
+                },
+                {
+                    value: '',
+                },
+            ]
+        }
+    })
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "options",
+    });
 
     const onSubmit = (data: FormData) => {
-        submitTimeout.current = window.setTimeout(() => {
-            history.push('/vote')
-        }, SUBMIT_TIMEOUT)
         localStorage.setItem('poll', JSON.stringify(data))
+        submitTimeout.current = setTimeout(() => {
+            history.push('/vote')
+        }, SUBMIT_DELAY)
     }
 
     return (
         <div>
             <h1>POLL CREATOR</h1>
-            <p>{savedPoll.name}</p>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <input type="text" name="name" placeholder="name" ref={register}/>
+                <div className={s.question}>
+                    <input
+                        type="text"
+                        name="question"
+                        placeholder="question"
+                        ref={register({
+                            required: 'field can`t be empty'
+                        })}
+                    />
+                    {errors?.question &&
+                        <span>{errors?.question.message}</span>
+                    }
+                </div>
+                <div className={s.options}>
+                    {fields.map((field, index) => (
+                        <div className={s.option}>
+                            <input
+                                key={field.id}
+                                name={`options[${index}].value`}
+                                ref={register({
+                                    required: 'field can`t be empty'
+                                })}
+                                defaultValue={field.value}
+                                placeholder={`option ${index + 1}`}
+                            />
+                            {errors?.options?.[index]?.value &&
+                                <span>{errors?.options?.[index]?.value?.message}</span>
+                            }
+                            {fields.length > MIN_OPTIONS &&
+                                <button type="button" onClick={() => remove(index)}>Delete</button>
+                            }
+                        </div>
+                    ))}
+                </div>
+                <button type="button" onClick={append}>Add option</button>
                 <button type="submit">SUBMIT</button>
             </form>
             <button type="button" onClick={() => localStorage.removeItem('poll')}>remove all polls from local storage</button>
