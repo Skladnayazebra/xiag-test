@@ -1,5 +1,5 @@
 import { API_DELAY, LOCALSTORAGE_KEY } from "../app-config";
-import { TPoll } from "../models";
+import { TPoll, TPollPublished } from "../models";
 
 // this api client can be extended to class or function,
 // maybe we wanted to add some parameters in future, like localstorageKey
@@ -8,12 +8,12 @@ import { TPoll } from "../models";
 export const mockApiClient = {
     // PUT, not POST - because every time we re-write localstorage data
     PUT: function (data: any) {
-        return new Promise<void>(function(resolve, reject) {
+        return new Promise<string>(function(resolve, reject) {
             try {
                 const encodedData = JSON.stringify(data);
                 localStorage.setItem(LOCALSTORAGE_KEY, encodedData)
                 window.setTimeout(() => {
-                    resolve()
+                    resolve(encodedData)
                 }, API_DELAY)
             } catch (error) {
                 console.error('mockApiClient.PUT failed: ', error)
@@ -22,16 +22,16 @@ export const mockApiClient = {
         })
     },
     GET: function () {
-        // todo: this is not universal solution!
-        return new Promise<TPoll>(function(resolve, reject) {
+        return new Promise<string>(function(resolve, reject) {
             try {
                 const encodedData = localStorage.getItem(LOCALSTORAGE_KEY)
-                if (encodedData) {
-                    const data: TPoll = JSON.parse(encodedData)
-                    resolve(data);
-                } else {
-                    reject()
-                }
+                window.setTimeout(() => {
+                    if (encodedData) {
+                        resolve(encodedData);
+                    } else {
+                        reject()
+                    }
+                }, API_DELAY)
             } catch (error) {
                 console.error('mockApiClient.GET failed: ', error)
                 reject()
