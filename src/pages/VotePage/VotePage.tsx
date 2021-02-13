@@ -5,6 +5,7 @@ import { mockApiClient } from "../../utils/mock-api-client";
 import { Routes } from "../../routes";
 import { TPollPublished, TVote } from "../../models";
 import { useForm } from "react-hook-form";
+import { useVoters } from "../../hooks/useVoters";
 
 
 export const VotePage = () => {
@@ -12,6 +13,11 @@ export const VotePage = () => {
     const [poll, setPoll] = useState<TPollPublished | null>(null)
 
     const { register, handleSubmit } = useForm<TVote>()
+
+    const { onVoteStart, onVoteEnd } = useVoters({
+        options: poll?.options || [],
+        onVote: (vote) => addVote(vote)
+    })
 
     useEffect(() => {
         mockApiClient.GET()
@@ -24,23 +30,30 @@ export const VotePage = () => {
             })
     }, [])
 
-    const onSubmit = (vote: TVote) => {
+    function addVote(vote: TVote) {
+        console.log('poll right before voting: ', poll)
         if (poll) {
             const updatedPoll: TPollPublished = {
+                // todo seems like poll value is not updating here
                 ...poll,
                 userVoted: true,
                 votes: [...poll.votes, vote]
             }
+            console.log('poll right after updating: ', updatedPoll)
             mockApiClient.PUT(updatedPoll)
                 .then((data) => {
-                    const poll: TPollPublished = JSON.parse(data);
-                    setPoll(poll)
+                    const incomingPoll: TPollPublished = JSON.parse(data);
+                    console.log('incoming poll from backend: ', incomingPoll)
+                    setPoll(incomingPoll)
+                    // console.log('voted! poll: ', poll)
                 })
                 .catch(() => {
                     setGeneralError('Error on vote sending.');
                 })
         }
     }
+
+    const onSubmit = (vote: TVote) => addVote(vote)
 
     return (
         <div>
@@ -96,6 +109,8 @@ export const VotePage = () => {
                             ))}
                         </tbody>
                     </table>
+                    <button onClick={onVoteStart}>Enable crowd</button>
+                    <button onClick={onVoteEnd}>Disable crowd</button>
                 </div>
             }
         </div>

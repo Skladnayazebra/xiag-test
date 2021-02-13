@@ -1,6 +1,11 @@
+export type TOption = {
+    id: number,
+    value: string,
+}
+
 export interface TPoll {
     question: string,
-    options: { value: string, id: number }[],
+    options: TOption[],
 }
 
 export type TVote = {
