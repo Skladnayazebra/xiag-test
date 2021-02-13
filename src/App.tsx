@@ -1,8 +1,8 @@
 import React from 'react';
 import { Layout } from "./components/Layout/Layout";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import { PollCreatorPage } from "./pages";
-import { VotePage } from "./pages/VotePage/VotePage";
+import { PollCreatorPage, VotePage } from "./pages";
+import { Routes } from "./routes";
 
 
 function App() {
@@ -10,10 +10,10 @@ function App() {
         <Layout>
             <BrowserRouter>
                 <Switch>
-                    <Route path="/" exact>
+                    <Route path={Routes.index} exact>
                         <PollCreatorPage/>
                     </Route>
-                    <Route path="/vote">
+                    <Route path={Routes.vote}>
                         <VotePage/>
                     </Route>
                 </Switch>
