@@ -1,0 +1,14 @@
+.layout {
+    display: flex;
+    padding: 15px;
+    min-height: 100vh;
+}
+
+.layout__content {
+    flex-grow: 1;
+    margin: 40px auto;
+    max-width: 600px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+}
