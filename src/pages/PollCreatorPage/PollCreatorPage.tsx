@@ -2,7 +2,7 @@ import s from './PollCreatorPage.module.scss'
 import { useHistory } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useState } from 'react'
-import { TPoll } from "../../models";
+import { TPoll, TPollPublished } from "../../models";
 import { POLL_MIN_OPTIONS } from "../../app-config";
 import { mockApiClient } from "../../utils/mock-api-client";
 import { Routes } from "../../routes";
@@ -32,10 +32,18 @@ export const PollCreatorPage = () => {
         keyName: 'key',
     });
 
-    const onSubmit = (data: TPoll) => {
+    const preparePoll = (poll: TPoll): TPollPublished => {
+        return {
+            ...poll,
+            userVoted: false,
+            votes: [],
+        }
+    }
+
+    const onSubmit = (poll: TPoll) => {
         setFormState(FormState.loading);
-        setGeneralError(null)
-        mockApiClient.PUT(data)
+        setGeneralError(null);
+        mockApiClient.PUT(preparePoll(poll))
             .then(() => {
                 setFormState(FormState.idle)
                 history.push(Routes.vote)
