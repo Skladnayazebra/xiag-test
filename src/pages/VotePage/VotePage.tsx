@@ -5,7 +5,7 @@ import { mockApiClient } from "../../utils/mock-api-client";
 import { Routes } from "../../routes";
 import { TOption, TPollPublished, TVote } from "../../models";
 import { useForm } from "react-hook-form";
-import { useVoters } from "../../hooks/useVoters";
+import { VOTES_LIST_STEP } from "../../config/app";
 
 const firstNames = ['Fabulous', 'Shy', 'Mighty', 'Lazy', 'Angry', 'Little', 'Beautiful', 'Funny', 'Brave']
 const secondNames = ['Mongoose', 'Doge', 'Lion', 'Zebra', 'Tiger', 'Bee', 'Deer', 'Ant', 'Squirrel']
@@ -42,11 +42,14 @@ const getRandomVote = (options: TOption[]): TVote => {
 const votePageReducer = (state: State, action: Action<any>) => {
     switch(action.type) {
         case ActionType.loadPoll:
-            return { ...state, poll: action.payload.poll }
-        case ActionType.updatePoll:
             return {
                 ...state,
                 poll: action.payload.poll,
+            }
+        case ActionType.updatePoll:
+            return {
+                ...state,
+                poll: { ...state.poll, ...action.payload.poll },
             }
     }
 }
@@ -56,11 +59,10 @@ export const VotePage = () => {
     const [state, dispatch] = useReducer(votePageReducer, { poll: null })
     const [autoVote, setAutoVote] = useState(false);
     const { register, handleSubmit } = useForm<TVote>()
-
     const timerRef = useRef<number | undefined>()
+    const [votesToShow, setVotesToShow] = useState<number>(VOTES_LIST_STEP)
 
-    // loads poll on page render
-    useEffect(() => {
+    const downloadPoll = () => {
         mockApiClient.GET()
             .then((data: string) => {
                 const poll: TPollPublished = JSON.parse(data);
@@ -69,53 +71,49 @@ export const VotePage = () => {
             .catch(() => {
                 setGeneralError('No poll loaded.');
             })
-    }, [])
+    }
+
+    const uploadPoll = (poll: TPollPublished) => {
+        mockApiClient.PUT(poll)
+            .then((data) => {
+                const incomingPoll: TPollPublished = JSON.parse(data);
+                dispatch({ type: ActionType.updatePoll, payload: { poll: incomingPoll }})
+            })
+            .catch(() => {
+                setGeneralError('Error on vote sending.');
+            })
+    }
 
 
-    // creates first vote after enabling auto vote mode
     useEffect(() => {
-        if (state.poll && autoVote) {
-            addVote(getRandomVote(state.poll.options))
-        }
-    }, [autoVote])
+        downloadPoll();
+    }, [])
 
     // repeatedly adds votes
     useEffect(() => {
         if (state.poll && autoVote) {
             timerRef.current = window.setTimeout(() => {
                 window.clearTimeout(timerRef.current)
-                addVote(getRandomVote(state.poll.options))
-            }, randomNumberInRange(2000, 3000))
+                const updatedPoll = {
+                    ...state.poll,
+                    votes: [...state.poll.votes, getRandomVote(state.poll.options)]
+                }
+                uploadPoll(updatedPoll)
+            }, randomNumberInRange(1000, 4000))
         }
         if (!autoVote) {
             window.clearTimeout(timerRef.current)
         }
-    }, [state.poll, state.poll?.votes])
+    }, [state.poll, state.poll?.votes, autoVote])
 
-    
-    
-    function addVote(vote: TVote, isUser: boolean = false) {
-        if (state.poll) {
-            const updatedPoll: TPollPublished = {
-                ...state.poll,
-                votes: [...state.poll.votes, vote]
-            }
-            if (isUser) {
-                updatedPoll.userVoted = true;
-            }
-            mockApiClient.PUT(updatedPoll)
-                .then((data) => {
-                    const incomingPoll: TPollPublished = JSON.parse(data);
-                    dispatch({ type: ActionType.updatePoll, payload: { poll: incomingPoll }})
-                })
-                .catch(() => {
-                    setGeneralError('Error on vote sending.');
-                })
-        }
-    }
 
     const onSubmit = (vote: TVote) => {
-        addVote(vote, true)
+        const updatedPoll: TPollPublished = {
+            ...state.poll,
+            votes: [...state.poll.votes, vote],
+            userVoted: true,
+        }
+        uploadPoll(updatedPoll)
     }
 
     return (
@@ -152,9 +150,8 @@ export const VotePage = () => {
                             </form>
                         )}
                     </div>
-                    <button onClick={() => setAutoVote(true)}>Enable crowd</button>
-                    <button onClick={() => setAutoVote(false)}>Disable crowd</button>
-                    <button>Clear votes</button>
+                    <p>Votes: {state.poll.votes.length}</p>
+                    <button onClick={() => setAutoVote(!autoVote)}>{autoVote ? 'Disable crowd' : 'Enable crowd'}</button>
                     <table>
                         <thead>
                             <tr>
@@ -165,7 +162,7 @@ export const VotePage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {state.poll.votes.slice(0, ).map((vote: TVote, index: number) => (
+                            {state.poll.votes.slice(0, votesToShow).map((vote: TVote, index: number) => (
                                 <tr key={index}>
                                     <td>{vote.name}</td>
                                     {state.poll.options.map((option: TOption) => (
@@ -175,7 +172,9 @@ export const VotePage = () => {
                             ))}
                         </tbody>
                     </table>
-
+                    {state.poll.votes.length > votesToShow &&
+                        <button onClick={() => setVotesToShow((votes) => votes + VOTES_LIST_STEP)}>Show more</button>
+                    }
                 </div>
             }
         </div>

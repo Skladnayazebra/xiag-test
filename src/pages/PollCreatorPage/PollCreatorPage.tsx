@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { TPoll, TPollPublished } from "../../models";
-import { POLL_MIN_OPTIONS } from "../../app-config";
+import { POLL_MIN_OPTIONS } from "../../config/app";
 import { mockApiClient } from "../../utils/mock-api-client";
 import { Routes } from "../../routes";
 

@@ -1,4 +1,4 @@
-import { API_DELAY, LOCALSTORAGE_KEY } from "../app-config";
+import { API_DELAY, LOCALSTORAGE_KEY } from "../config/app";
 import { TPoll, TPollPublished } from "../models";
 
 // this api client can be extended to class or function,
