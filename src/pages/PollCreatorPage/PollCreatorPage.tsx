@@ -4,7 +4,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { TPoll, TPollPublished } from "../../models";
 import { POLL_MIN_OPTIONS } from "../../config/app";
-import { mockApiClient } from "../../utils/mock-api-client";
+import { apiClient } from "../../mocks/api-client";
 import { Routes } from "../../routes";
 
 enum FormState {
@@ -43,15 +43,17 @@ export const PollCreatorPage = () => {
     const onSubmit = (poll: TPoll) => {
         setFormState(FormState.loading);
         setGeneralError(null);
-        mockApiClient.PUT(preparePoll(poll))
-            .then(() => {
+
+        apiClient.put('/poll', preparePoll(poll),
+            () => {
                 setFormState(FormState.idle)
                 history.push(Routes.vote)
-            })
-            .catch(() => {
+            },
+            () => {
                 setFormState(FormState.idle)
                 setGeneralError('There is something wrong. Try to reload page')
-            })
+            }
+        )
     }
 
     return (

@@ -1,14 +1,13 @@
 import s from './VotePage.module.scss'
 import { Link } from 'react-router-dom'
 import { useEffect, useReducer, useRef } from "react";
-import { mockApiClient } from "../../utils/mock-api-client";
+import { apiClient } from "../../mocks/api-client";
 import { Routes } from "../../routes";
 import { TOption, TPollPublished, TVote } from "../../models";
 import { useForm } from "react-hook-form";
 import { getRandomVote } from "../../utils/vote";
 import { randomNumberInRange } from '../../utils/random';
-import { ActionType, initialState, TGeneralError, votePageReducer } from "./reducer";
-
+import { ActionType, TGeneralError, votePageReducer, initialState } from "./reducer";
 
 export const VotePage = () => {
     const [state, dispatch] = useReducer(votePageReducer, initialState)
@@ -16,25 +15,25 @@ export const VotePage = () => {
     const autoVoteTimerRef = useRef<number | undefined>()
 
     const downloadPoll = () => {
-        mockApiClient.GET()
-            .then((data: string) => {
-                const poll: TPollPublished = JSON.parse(data);
-                dispatch({ type: ActionType.loadPoll, payload: { poll } })
-            })
-            .catch(() => {
+        apiClient.get('/poll',
+            (data) => {
+                dispatch({ type: ActionType.loadPoll, payload: { poll: data } })
+            },
+            () => {
                 dispatch({ type: ActionType.setGeneralError, payload: TGeneralError.loadPollError })
-            })
+            }
+        )
     }
 
     const uploadPoll = (poll: TPollPublished) => {
-        mockApiClient.PUT(poll)
-            .then((data) => {
-                const incomingPoll: TPollPublished = JSON.parse(data);
-                dispatch({ type: ActionType.updatePoll, payload: { poll: incomingPoll }})
-            })
-            .catch(() => {
+        apiClient.put('/poll', poll,
+            (data) => {
+                dispatch({ type: ActionType.updatePoll, payload: { poll: data }})
+            },
+            () => {
                 dispatch({ type: ActionType.setGeneralError, payload: TGeneralError.sendVoteError })
-            })
+            }
+        )
     }
 
 
@@ -49,7 +48,7 @@ export const VotePage = () => {
                 window.clearTimeout(autoVoteTimerRef.current)
                 const updatedPoll = {
                     ...state.poll,
-                    votes: [...state.poll.votes, getRandomVote(state.poll.options)]
+                    votes: [getRandomVote(state.poll.options), ...state.poll.votes ] // put new votes in beginning of list
                 }
                 uploadPoll(updatedPoll)
             }, randomNumberInRange(1000, 4000))
@@ -63,7 +62,7 @@ export const VotePage = () => {
     const onSubmit = (vote: TVote) => {
         const updatedPoll: TPollPublished = {
             ...state.poll,
-            votes: [...state.poll.votes, vote],
+            votes: [vote, ...state.poll.votes], // put new votes in beginning of list
             userVoted: true,
         }
         uploadPoll(updatedPoll)

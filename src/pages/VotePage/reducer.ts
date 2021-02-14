@@ -51,5 +51,7 @@ export const votePageReducer: Reducer<any, any> = (state: TVotePageState, action
                 ...state,
                 votesToShow: state.votesToShow + VOTES_LIST_STEP,
             }
+        default:
+            return state
     }
 }
