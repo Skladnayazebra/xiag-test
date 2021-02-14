@@ -18,3 +18,8 @@ export interface TPollPublished extends TPoll {
     userVoted: boolean,
     votes: TVote[],
 }
+
+export type TStoreAction = {
+    type: string,
+    payload?: any,
+}
