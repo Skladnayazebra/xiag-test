@@ -15,7 +15,7 @@ $border-radius: 5px;
 }
 
 .input {
-    height: $input-height--large;
+    height: $input-height;
     width: 100%;
     background-color: $input-background;
     border-radius: $border-radius;
@@ -23,8 +23,8 @@ $border-radius: 5px;
     padding: 0 $input-padding;
 }
 
-.input_dense {
-    height: $input-height;
+.input_large {
+    height: $input-height--large;
 }
 
 .input:not(:placeholder-shown) {

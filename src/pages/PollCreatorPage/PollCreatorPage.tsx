@@ -73,7 +73,7 @@ export const PollCreatorPage = () => {
                     <label>
                         <span>Question</span>
                         <input
-                            className={cn(commonStyles.input, { [commonStyles.input_error]: errors?.question })}
+                            className={cn(commonStyles.input, commonStyles.input_large, { [commonStyles.input_error]: errors?.question })}
                             placeholder=""
                             type="text"
                             name="question"
@@ -95,7 +95,6 @@ export const PollCreatorPage = () => {
                                     id={`option-${index + 1}`}
                                     className={cn(
                                         commonStyles.input,
-                                        commonStyles.input_dense,
                                         { [commonStyles.input_error]: errors?.options?.[index]?.value }
                                     )}
                                     placeholder=""

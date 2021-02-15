@@ -1,4 +1,5 @@
 import s from './VotePage.module.scss'
+import commonStyles from '../../styles/common.module.scss'
 import { Link } from 'react-router-dom'
 import { useEffect, useReducer, useRef } from "react";
 import { apiClient } from "../../mocks/api-client";
@@ -7,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { getRandomVote } from "../../utils/vote";
 import { randomNumberInRange } from '../../utils/random';
 import { ActionType, initialState, TGeneralError, votePageReducer } from "./reducer";
+import cn from 'classnames'
 
 type Props = {
     params: { pollId: string },
@@ -86,65 +88,80 @@ export const VotePage = ({ params }: Props) => {
 
     return (
         <div>
-            <h1>VOTE PAGE</h1>
+            <h1 className={commonStyles.mainHeading}>VOTE PAGE</h1>
             {state.generalError &&
                 <p>{renderGeneralError(state.generalError)}</p>
             }
             {state.poll &&
                 <div>
-                    <div>
-                        <h2>{state.poll?.question}</h2>
+                    <div className={s.question}>
+                        <span>Question</span>
+                        <h2 className={s.question__heading}>{state.poll?.question}</h2>
                         {state.poll.userVoted ? (
                             <p>Thank you for your vote! <Link to="/">Return to poll creator</Link></p>
                         ) : (
                             <form onSubmit={handleSubmit(onSubmit)}>
-                                <div className={s.options}>
+                                <div className={s.question__options}>
+                                    <span>Your answer</span>
                                     {state.poll.options.map((option: TOption) => (
-                                        <label key={option.id}>
+                                        <label key={option.id} className={s.question__option}>
                                             <input type="radio" name="optionId" value={option.id} ref={register({ required: true, valueAsNumber: true })}/>
                                             {option.value}
                                         </label>
                                     ))}
                                 </div>
-                                <label>
-                                    <span>your name</span>
+                                <label className={s.question__nameInputWrapper}>
+                                    <span>Your name</span>
                                     <input
+                                        className={cn(commonStyles.input)}
+                                        placeholder=""
                                         type="text"
                                         name="name"
                                         ref={register({ required: true })}
                                     />
                                 </label>
-                                <button type="submit">Vote</button>
+                                <button type="submit" className={commonStyles.button}>Vote</button>
                             </form>
                         )}
                     </div>
-                    <p>Votes: {state.poll.votes.length}</p>
-                    <button onClick={() => dispatch({ type: ActionType.toggleAutoVote })}>
-                        {state.autoVote ? 'Disable crowd' : 'Enable crowd'}
-                    </button>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                {state.poll.options.map((option: TOption) => (
-                                    <th key={option.id}>{option.value}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {state.poll.votes.slice(0, state.votesToShow).map((vote: TVote, index: number) => (
-                                <tr key={index}>
-                                    <td>{vote.name}</td>
+                    <div className={s.results}>
+                        <h2>Results</h2>
+                        <p>Votes: {state.poll.votes.length}</p>
+                        <button
+                            className={cn(commonStyles.button, commonStyles.button_outlined)}
+                            onClick={() => dispatch({ type: ActionType.toggleAutoVote })}
+                        >
+                            {state.autoVote ? 'Disable crowd' : 'Enable crowd'}
+                        </button>
+                        <table className={s.results__table}>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
                                     {state.poll.options.map((option: TOption) => (
-                                        <th key={option.id}>{+option.id === +vote.optionId ? 'YEP' : ''}</th>
+                                        <th key={option.id}>{option.value}</th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {state.poll.votes.length > state.votesToShow &&
-                        <button onClick={() => dispatch({ type: ActionType.increaseVotesToShow })}>Show more</button>
-                    }
+                            </thead>
+                            <tbody>
+                                {state.poll.votes.slice(0, state.votesToShow).map((vote: TVote, index: number) => (
+                                    <tr key={index}>
+                                        <td>{vote.name}</td>
+                                        {state.poll.options.map((option: TOption) => (
+                                            <td key={option.id} className={s.results__tableCell}>{+option.id === +vote.optionId ? '✅' : ''}</td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {state.poll.votes.length > state.votesToShow &&
+                            <button
+                                className={cn(commonStyles.button, commonStyles.button_outlined)}
+                                onClick={() => dispatch({ type: ActionType.increaseVotesToShow })}
+                            >
+                                Show more
+                            </button>
+                        }
+                    </div>
                 </div>
             }
         </div>
