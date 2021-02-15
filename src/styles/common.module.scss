@@ -1,4 +1,73 @@
+@use 'src/styles/colors';
+
+$input-background: #e8eef0;
+$input-border: #ccd2d4;
+$input-border-focus: colors.$accent-blue;
+
+$input-height: 35px;
+$input-padding: 20px;
+$input-height--large: 50px;
+$border-radius: 5px;
+
 .mainHeading {
     font-family: 'Montserrat', sans-serif;
     font-weight: bold;
+}
+
+.input {
+    height: $input-height;
+    width: 100%;
+    background-color: $input-background;
+    border-radius: $border-radius;
+    border: 1px solid transparent;
+    padding: 0 $input-padding;
+}
+
+.input_large {
+    height: $input-height--large;
+}
+
+.input:not(:placeholder-shown) {
+    background-color: white;
+    border-color: $input-border;
+}
+
+.input:focus {
+    border-color: $input-border-focus;
+}
+
+.input_error, .input_error:focus {
+    border-color: colors.$accent-red;
+}
+
+.input__errorMessage {
+    font-size: 14px;
+    color: colors.$accent-red;
+}
+
+.button {
+    height: $input-height;
+    background-color: colors.$accent-blue;
+    border-radius: $border-radius;
+    border: 1px solid colors.$accent-blue;
+    color: white;
+    padding: 0 $input-padding;
+    cursor: pointer;
+    transition: all 150ms;
+}
+
+.button:hover, .button:focus {
+    background-color: colors.$accent-blue--hover;
+    border-color: colors.$accent-blue--hover;
+}
+
+.button_outlined {
+    background-color: white;
+    color: colors.$accent-blue;
+}
+
+.button_outlined:hover, .button_outlined:focus {
+    background-color: white;
+    color: colors.$accent-blue--hover;
+    border-color: colors.$accent-blue--hover;
 }

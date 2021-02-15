@@ -1,0 +1,47 @@
+@use 'src/styles/colors';
+
+$delete-button-color: #8d9395;
+
+.question {
+    margin-bottom: 40px;
+}
+
+.options {
+    margin-bottom: 40px;
+}
+
+.option {
+    margin-bottom: 10px;
+}
+
+.option__inputWrapper {
+    display: grid;
+    grid-auto-flow: column;
+    column-gap: 20px;
+    align-items: center;
+    grid-auto-columns: auto max-content;
+}
+
+.option__deleteButton {
+    padding: 0;
+    color: $delete-button-color;
+    background: none;
+    border: 1px solid;
+    border-radius: 50px;
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 200ms;
+}
+
+.option__deleteButton:hover {
+    color: colors.$accent-red;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+}
