@@ -16,7 +16,7 @@ type Props = {
 
 export const VotePage = ({ params }: Props) => {
     const [state, dispatch] = useReducer(votePageReducer, initialState)
-    const { register, handleSubmit } = useForm<TVote>()
+    const { register, handleSubmit, errors } = useForm<TVote>()
     const autoVoteTimerRef = useRef<number | undefined>()
 
     const downloadPoll = () => {
@@ -105,20 +105,31 @@ export const VotePage = ({ params }: Props) => {
                                     <span>Your answer</span>
                                     {state.poll.options.map((option: TOption) => (
                                         <label key={option.id} className={s.question__option}>
-                                            <input type="radio" name="optionId" value={option.id} ref={register({ required: true, valueAsNumber: true })}/>
+                                            <input
+                                                type="radio"
+                                                name="optionId"
+                                                value={option.id}
+                                                ref={register({ required: 'Select option', valueAsNumber: true })}
+                                            />
                                             {option.value}
                                         </label>
                                     ))}
+                                    {errors.optionId &&
+                                        <span className={commonStyles.input__errorMessage}>{errors.optionId.message}</span>
+                                    }
                                 </div>
                                 <label className={s.question__nameInputWrapper}>
                                     <span>Your name</span>
                                     <input
-                                        className={cn(commonStyles.input)}
+                                        className={cn(commonStyles.input, { [commonStyles.input_error]: errors.name })}
                                         placeholder=""
                                         type="text"
                                         name="name"
-                                        ref={register({ required: true })}
+                                        ref={register({ required: 'Enter your name' })}
                                     />
+                                    {errors.name &&
+                                        <span className={commonStyles.input__errorMessage}>{errors.name.message}</span>
+                                    }
                                 </label>
                                 <button type="submit" className={commonStyles.button}>Vote</button>
                             </form>
