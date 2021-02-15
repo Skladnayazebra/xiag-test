@@ -5,8 +5,9 @@ export const handlers = [
     rest.get('/poll', ((req, res, ctx) => {
         const encodedData = localStorage.getItem(LOCALSTORAGE_KEY)
         const data = encodedData ? JSON.parse(encodedData) : null;
+        const pollId = req.url.searchParams.get('pollId')
 
-        if (data !== null) {
+        if (data !== null && data.id === pollId) {
             return res(
                 ctx.status(200),
                 ctx.json(data)

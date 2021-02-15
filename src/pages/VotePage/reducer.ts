@@ -51,6 +51,11 @@ export const votePageReducer: Reducer<any, any> = (state: TVotePageState, action
                 ...state,
                 votesToShow: state.votesToShow + VOTES_LIST_STEP,
             }
+        case ActionType.setGeneralError:
+            return {
+                ...state,
+                generalError: action.payload,
+            }
         default:
             return state
     }

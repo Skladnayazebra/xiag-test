@@ -2,22 +2,29 @@ import s from './VotePage.module.scss'
 import { Link } from 'react-router-dom'
 import { useEffect, useReducer, useRef } from "react";
 import { apiClient } from "../../mocks/api-client";
-import { Routes } from "../../routes";
-import { TOption, TPollPublished, TVote } from "../../models";
+import { isPollPublished, TOption, TPollPublished, TVote } from "../../models";
 import { useForm } from "react-hook-form";
 import { getRandomVote } from "../../utils/vote";
 import { randomNumberInRange } from '../../utils/random';
-import { ActionType, TGeneralError, votePageReducer, initialState } from "./reducer";
+import { ActionType, initialState, TGeneralError, votePageReducer } from "./reducer";
 
-export const VotePage = () => {
+type Props = {
+    params: { pollId: string },
+}
+
+export const VotePage = ({ params }: Props) => {
     const [state, dispatch] = useReducer(votePageReducer, initialState)
     const { register, handleSubmit } = useForm<TVote>()
     const autoVoteTimerRef = useRef<number | undefined>()
 
     const downloadPoll = () => {
-        apiClient.get('/poll',
+        apiClient.get(`/poll?pollId=${params.pollId}`,
             (data) => {
-                dispatch({ type: ActionType.loadPoll, payload: { poll: data } })
+                if (isPollPublished(data)) {
+                    dispatch({type: ActionType.loadPoll, payload: {poll: data}})
+                    return;
+                }
+                dispatch({ type: ActionType.setGeneralError, payload: TGeneralError.loadPollError })
             },
             () => {
                 dispatch({ type: ActionType.setGeneralError, payload: TGeneralError.loadPollError })
@@ -73,7 +80,7 @@ export const VotePage = () => {
             case TGeneralError.sendVoteError:
                 return <span>Error on vote sending</span>
             case TGeneralError.loadPollError:
-                return <span>Poll not loaded. <Link to={Routes.index}>Return to vote creator</Link></span>
+                return <span>Poll not loaded. <Link to="/">Return to vote creator</Link></span>
         }
     }
 
@@ -88,7 +95,7 @@ export const VotePage = () => {
                     <div>
                         <h2>{state.poll?.question}</h2>
                         {state.poll.userVoted ? (
-                            <p>Thank you for your vote! <Link to={Routes.index}>Return to poll creator</Link></p>
+                            <p>Thank you for your vote! <Link to="/">Return to poll creator</Link></p>
                         ) : (
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <div className={s.options}>

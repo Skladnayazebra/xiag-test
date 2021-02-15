@@ -1,11 +1,12 @@
 import s from './PollCreatorPage.module.scss'
+import commonStyles from '../../styles/common.module.scss'
 import { useHistory } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { TPoll, TPollPublished } from "../../models";
 import { POLL_MIN_OPTIONS } from "../../config/app";
 import { apiClient } from "../../mocks/api-client";
-import { Routes } from "../../routes";
+import { generateId } from "../../utils/id-generator";
 
 enum FormState {
     idle = 'idle',
@@ -32,22 +33,24 @@ export const PollCreatorPage = () => {
         keyName: 'key',
     });
 
-    const preparePoll = (poll: TPoll): TPollPublished => {
+    const preparePoll = (poll: TPoll, pollId: string): TPollPublished => {
         return {
             ...poll,
             userVoted: false,
             votes: [],
+            id: pollId,
         }
     }
 
     const onSubmit = (poll: TPoll) => {
         setFormState(FormState.loading);
         setGeneralError(null);
+        const pollId: string = generateId();
 
-        apiClient.put('/poll', preparePoll(poll),
+        apiClient.put('/poll', preparePoll(poll, pollId),
             () => {
                 setFormState(FormState.idle)
-                history.push(Routes.vote)
+                history.push(`/vote/${pollId}`)
             },
             () => {
                 setFormState(FormState.idle)
@@ -58,7 +61,7 @@ export const PollCreatorPage = () => {
 
     return (
         <div>
-            <h1>POLL CREATOR</h1>
+            <h1 className={commonStyles.mainHeading}>POLL CREATOR</h1>
             {generalError &&
                 <div className={s.generalError}>
                     <span>{generalError}</span>

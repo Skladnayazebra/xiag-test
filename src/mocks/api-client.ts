@@ -5,7 +5,7 @@ export const apiClient = {
                 if (response.status === 200) {
                     return response.json()
                 } else {
-                    throw new Error()
+                    onError()
                 }
             })
             .then((data) => {
@@ -21,7 +21,7 @@ export const apiClient = {
                 if (response.status === 200) {
                     return response.json()
                 } else {
-                    throw new Error()
+                    onError()
                 }
             })
             .then((data) => {
