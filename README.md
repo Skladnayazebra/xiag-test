@@ -12,7 +12,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Usage
 
 * Clone repository
-* Go to project root `cd text-xiag`
+* Go to project root `cd test-xiag`
 * Install dependencies `npm i`
 * Run dev server: `npm start`
 * Open [http://localhost:3000](http://localhost:3000)
