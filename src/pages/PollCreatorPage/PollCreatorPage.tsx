@@ -7,6 +7,7 @@ import { TPoll, TPollPublished } from "../../models";
 import { POLL_MIN_OPTIONS } from "../../config/app";
 import { apiClient } from "../../mocks/api-client";
 import { generateId } from "../../utils/id-generator";
+import cn from 'classnames'
 
 enum FormState {
     idle = 'idle',
@@ -69,30 +70,46 @@ export const PollCreatorPage = () => {
             }
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className={s.question}>
-                    <input
-                        type="text"
-                        name="question"
-                        placeholder="question"
-                        ref={register({
-                            required: 'can`t be empty'
-                        })}
-                    />
+                    <label>
+                        <span>Question</span>
+                        <input
+                            className={cn(commonStyles.input, { [commonStyles.input_error]: errors?.question })}
+                            placeholder=""
+                            type="text"
+                            name="question"
+                            ref={register({
+                                required: 'can`t be empty'
+                            })}
+                        />
+                    </label>
                     {errors?.question &&
-                        <span>{errors?.question.message}</span>
+                        <span className={commonStyles.input__errorMessage}>{errors?.question.message}</span>
                     }
                 </div>
                 <div className={s.options}>
                     {fields.map((field, index) => (
                         <div className={s.option} key={field.key}>
-                            <input
-                                type="text"
-                                name={`options[${index}].value`}
-                                ref={register({
-                                    required: 'can`t be empty'
-                                })}
-                                defaultValue={field.value}
-                                placeholder={`option ${index + 1}`}
-                            />
+                            <label htmlFor={`option-${index + 1}`}>{`Option ${index + 1}`}</label>
+                            <div className={s.option__inputWrapper}>
+                                <input
+                                    id={`option-${index + 1}`}
+                                    className={cn(
+                                        commonStyles.input,
+                                        commonStyles.input_dense,
+                                        { [commonStyles.input_error]: errors?.options?.[index]?.value }
+                                    )}
+                                    placeholder=""
+                                    type="text"
+                                    name={`options[${index}].value`}
+                                    ref={register({
+                                        required: 'can`t be empty'
+                                    })}
+                                    defaultValue={field.value}
+                                />
+                            {fields.length > POLL_MIN_OPTIONS &&
+                                <button title="Delete option" type="button" onClick={() => remove(index)} className={s.option__deleteButton}>✖</button>
+                            }
+                            </div>
                             <input
                                 type="hidden"
                                 name={`options[${index}].id`}
@@ -100,16 +117,17 @@ export const PollCreatorPage = () => {
                                 defaultValue={index + 1}
                             />
                             {errors?.options?.[index]?.value &&
-                                <span>{errors?.options?.[index]?.value?.message}</span>
-                            }
-                            {fields.length > POLL_MIN_OPTIONS &&
-                                <button type="button" onClick={() => remove(index)}>Delete</button>
+                                <span className={commonStyles.input__errorMessage}>{errors?.options?.[index]?.value?.message}</span>
                             }
                         </div>
                     ))}
                 </div>
-                <button type="button" onClick={append}>Add option</button>
-                <button type="submit">{formState === FormState.loading ? 'submitting...' : 'submit'}</button>
+                <div className={s.controls}>
+                    <button type="button" onClick={append} className={cn(commonStyles.button, commonStyles.button_outlined)}>+ Add option</button>
+                    <button type="submit"  className={commonStyles.button}>
+                        {formState === FormState.loading ? 'Submitting...' : 'Submit'}
+                    </button>
+                </div>
             </form>
         </div>
     )
