@@ -1,11 +1,12 @@
 import s from './PollCreatorPage.module.scss'
+import commonStyles from '../../styles/common.module.scss'
 import { useHistory } from 'react-router-dom'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useState } from 'react'
-import { TPoll } from "../../models";
-import { POLL_MIN_OPTIONS } from "../../app-config";
-import { mockApiClient } from "../../utils/mock-api-client";
-import { Routes } from "../../routes";
+import { TPoll, TPollPublished } from "../../models";
+import { POLL_MIN_OPTIONS } from "../../config/app";
+import { apiClient } from "../../mocks/api-client";
+import { generateId } from "../../utils/id-generator";
 
 enum FormState {
     idle = 'idle',
@@ -32,23 +33,35 @@ export const PollCreatorPage = () => {
         keyName: 'key',
     });
 
-    const onSubmit = (data: TPoll) => {
+    const preparePoll = (poll: TPoll, pollId: string): TPollPublished => {
+        return {
+            ...poll,
+            userVoted: false,
+            votes: [],
+            id: pollId,
+        }
+    }
+
+    const onSubmit = (poll: TPoll) => {
         setFormState(FormState.loading);
-        setGeneralError(null)
-        mockApiClient.PUT(data)
-            .then(() => {
+        setGeneralError(null);
+        const pollId: string = generateId();
+
+        apiClient.put('/poll', preparePoll(poll, pollId),
+            () => {
                 setFormState(FormState.idle)
-                history.push(Routes.vote)
-            })
-            .catch(() => {
+                history.push(`/vote/${pollId}`)
+            },
+            () => {
                 setFormState(FormState.idle)
                 setGeneralError('There is something wrong. Try to reload page')
-            })
+            }
+        )
     }
 
     return (
         <div>
-            <h1>POLL CREATOR</h1>
+            <h1 className={commonStyles.mainHeading}>POLL CREATOR</h1>
             {generalError &&
                 <div className={s.generalError}>
                     <span>{generalError}</span>
@@ -61,7 +74,7 @@ export const PollCreatorPage = () => {
                         name="question"
                         placeholder="question"
                         ref={register({
-                            required: 'field can`t be empty'
+                            required: 'can`t be empty'
                         })}
                     />
                     {errors?.question &&
@@ -72,14 +85,20 @@ export const PollCreatorPage = () => {
                     {fields.map((field, index) => (
                         <div className={s.option} key={field.key}>
                             <input
+                                type="text"
                                 name={`options[${index}].value`}
                                 ref={register({
-                                    required: 'field can`t be empty'
+                                    required: 'can`t be empty'
                                 })}
                                 defaultValue={field.value}
                                 placeholder={`option ${index + 1}`}
                             />
-                            <input ref={register()} type="hidden" name={`options[${index}].id`} defaultValue={index + 1}/>
+                            <input
+                                type="hidden"
+                                name={`options[${index}].id`}
+                                ref={register({ valueAsNumber: true })}
+                                defaultValue={index + 1}
+                            />
                             {errors?.options?.[index]?.value &&
                                 <span>{errors?.options?.[index]?.value?.message}</span>
                             }

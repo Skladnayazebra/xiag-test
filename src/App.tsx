@@ -2,7 +2,6 @@ import React from 'react';
 import { Layout } from "./components/Layout/Layout";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { PollCreatorPage, VotePage } from "./pages";
-import { Routes } from "./routes";
 
 
 function App() {
@@ -10,12 +9,12 @@ function App() {
         <Layout>
             <BrowserRouter>
                 <Switch>
-                    <Route path={Routes.index} exact>
+                    <Route path="/" exact>
                         <PollCreatorPage/>
                     </Route>
-                    <Route path={Routes.vote}>
-                        <VotePage/>
-                    </Route>
+                    <Route path="/vote/:pollId" children={({ match }) => (
+                        <VotePage params={match ? match.params : {}}/>
+                    )}/>
                 </Switch>
             </BrowserRouter>
         </Layout>

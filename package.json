@@ -47,6 +47,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.9",
     "@types/classnames": "^2.2.11",
-    "@types/react-router-dom": "^5.1.7"
+    "@types/react-router-dom": "^5.1.7",
+    "msw": "^0.26.2"
   }
 }
