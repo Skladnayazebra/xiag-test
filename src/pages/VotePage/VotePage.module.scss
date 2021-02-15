@@ -1,0 +1,48 @@
+.question__heading {
+    margin-top: 0;
+}
+
+.question {
+    margin-bottom: 40px;
+}
+
+.question__options {
+    display: grid;
+    row-gap: 10px;
+    justify-items: start;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.question__option {
+    display: grid;
+    grid-auto-flow: column;
+    column-gap: 10px;
+    align-items: center;
+}
+
+.question__nameInputWrapper {
+    display: grid;
+    margin-bottom: 30px;
+}
+
+.results__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+
+    th {
+        height: 40px;
+        font-weight: normal;
+        border-bottom: 1px solid lightgray;
+    }
+    td {
+        border: 1px solid lightgray;
+        padding: 5px;
+        //border-right: 1px solid lightgray;
+    }
+
+    td:not(:first-child) {
+        text-align: center;
+    }
+}

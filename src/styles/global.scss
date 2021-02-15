@@ -1,0 +1,10 @@
+@use './colors';
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: colors.$background;
+    font-family: 'Roboto', sans-serif;
+}
